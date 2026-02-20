@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI-Native Operating System v0.1</title>
+<meta name="description" content="PMF를 찾는 기계 — AI 시대의 포드식 공법으로 설계한 스타트업 운영 시스템" />
+<meta property="og:title" content="AI-Native Operating System v0.1" />
+<meta property="og:description" content="프로덕트를 만드는 회사가 아니라, 프로덕트를 찾는 시스템을 만드는 회사" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #e2e2e8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #12121a; }
+  ::-webkit-scrollbar-thumb { background: #2a2a3e; border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const tabs = [
+  { id: "bigpicture", label: "🏭 큰 그림" },
+  { id: "experiment", label: "🔬 실험 플로우" },
+  { id: "daily", label: "📅 일일 운영" },
+  { id: "agents", label: "🤖 에이전트 구조" },
+  { id: "db", label: "💾 DB 설계" },
+];
+
+const C = {
+  bg: "#0a0a0f", card: "#12121a", cardHover: "#1a1a25",
+  border: "#1e1e2e", borderAccent: "#2a2a3e",
+  text: "#e2e2e8", textDim: "#8888a0", textMuted: "#5a5a72",
+  accent: "#6366f1", accentDim: "#4f46e5",
+  green: "#22c55e", greenDim: "#16a34a", orange: "#f59e0b",
+  red: "#ef4444", cyan: "#06b6d4", purple: "#a855f7",
+  pink: "#ec4899", blue: "#3b82f6",
+};
+
+const Badge = ({ color, children }) => (
+  <span style={{ background: color + "20", color, padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600, letterSpacing: 0.3, whiteSpace: "nowrap" }}>
+    {children}
+  </span>
+);
+
+const Card = ({ title, children, accent = C.accent, style = {} }) => (
+  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, borderTop: `3px solid ${accent}`, ...style }}>
+    {title && <div style={{ fontSize: 14, fontWeight: 700, color: accent, marginBottom: 12, letterSpacing: 0.5 }}>{title}</div>}
+    {children}
+  </div>
+);
+
+const Arrow = ({ direction = "down", color = C.textMuted, label }) => (
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "6px 0" }}>
+    {label && <span style={{ fontSize: 10, color: C.textDim, marginBottom: 2 }}>{label}</span>}
+    <span style={{ color, fontSize: 18 }}>{direction === "down" ? "↓" : direction === "right" ? "→" : "↑"}</span>
+  </div>
+);
+
+const FlowStep = ({ emoji, title, sub, accent = C.accent, active }) => (
+  <div style={{ background: active ? accent + "15" : C.card, border: `1px solid ${active ? accent : C.border}`, borderRadius: 10, padding: "12px 16px", textAlign: "center", minWidth: 120 }}>
+    <div style={{ fontSize: 20, marginBottom: 4 }}>{emoji}</div>
+    <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{title}</div>
+    {sub && <div style={{ fontSize: 10, color: C.textDim, marginTop: 2 }}>{sub}</div>}
+  </div>
+);
+
+// ═══════════════════════════════════════
+// TAB 1: BIG PICTURE
+// ═══════════════════════════════════════
+const BigPicture = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ textAlign: "center", marginBottom: 8 }}>
+      <div style={{ fontSize: 11, color: C.accent, letterSpacing: 2, fontWeight: 600 }}>SYSTEM OVERVIEW</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, marginTop: 4 }}>PMF를 찾는 기계</div>
+      <div style={{ fontSize: 13, color: C.textDim, marginTop: 4 }}>프로덕트를 만드는 회사가 아니라, 프로덕트를 찾는 시스템을 만드는 회사</div>
+    </div>
+
+    {/* Tier 1 */}
+    <div style={{ border: `2px solid ${C.accent}`, borderRadius: 16, padding: 20, background: C.accent + "05" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ background: C.accent, color: "#fff", padding: "2px 8px", borderRadius: 4, fontSize: 10 }}>TIER 1</span>
+        메타 시스템 — 프로덕트가 바뀌어도 불변
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+        <Card title="🎯 가설 포트폴리오" accent={C.orange}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            <div>• 동시 가동 MAX 2</div>
+            <div>• 각각 PMF 기준 정의</div>
+            <div>• 주 1회 메트릭 체크</div>
+            <div style={{ marginTop: 8 }}><Badge color={C.orange}>현재: Product A</Badge></div>
+          </div>
+        </Card>
+        <Card title="🏗️ 공통 자산" accent={C.green}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            <div>• SNS / 브랜딩</div>
+            <div>• 커뮤니티 관계</div>
+            <div>• 타겟 유저 이해</div>
+            <div>• 기술 인프라 / 노하우</div>
+            <div style={{ marginTop: 4 }}><Badge color={C.green}>프로덕트 독립</Badge></div>
+          </div>
+        </Card>
+        <Card title="🧠 판단 메모리" accent={C.purple}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            <div>• Go/Kill 사유 1줄</div>
+            <div>• 프로덕트 태그</div>
+            <div>• 카테고리 분류</div>
+            <div style={{ marginTop: 4 }}><Badge color={C.purple}>AI가 읽고 주입</Badge></div>
+          </div>
+        </Card>
+        <Card title="⚙️ 운영 프로토콜" accent={C.cyan}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            <div>• 데일리 루프</div>
+            <div>• 주간 리뷰</div>
+            <div>• 시스템 개선 (주 1개)</div>
+            <div style={{ marginTop: 4 }}><Badge color={C.cyan}>어떤 프로덕트든 동일</Badge></div>
+          </div>
+        </Card>
+      </div>
+    </div>
+
+    <Arrow direction="down" label="실험 인스턴스 스폰" />
+
+    {/* Tier 2 */}
+    <div style={{ border: `2px dashed ${C.border}`, borderRadius: 16, padding: 20, background: C.card + "80" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.textDim, marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ background: C.borderAccent, color: C.text, padding: "2px 8px", borderRadius: 4, fontSize: 10 }}>TIER 2</span>
+        프로덕트 인스턴스 — 생성 / 자동화 / Kill
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
+        <div style={{ background: C.orange + "10", border: `1px solid ${C.orange}40`, borderRadius: 10, padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Product A</span>
+            <Badge color={C.orange}>검증 중</Badge>
+          </div>
+          <div style={{ fontSize: 10, color: C.textDim, marginTop: 8, lineHeight: 1.5 }}>
+            PMF 기준: 핵심 메트릭 정의됨<br />이니셔티브 3개 가동<br />목표: 자동화 → 사람 빠짐
+          </div>
+        </div>
+        <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 10, padding: 16, opacity: 0.5 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.textMuted }}>Next Product</div>
+          <div style={{ fontSize: 10, color: C.textMuted, marginTop: 8 }}>Product A 자동화 완료 후<br />슬롯 오픈</div>
+        </div>
+        <div style={{ background: C.card, border: `1px dashed ${C.border}`, borderRadius: 10, padding: 16, opacity: 0.3 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.textMuted }}>Future Slot</div>
+          <div style={{ fontSize: 10, color: C.textMuted, marginTop: 8 }}>대기</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Value Flow */}
+    <div style={{ display: "flex", justifyContent: "center", gap: 24, padding: 16, background: C.card, borderRadius: 12, border: `1px solid ${C.border}`, flexWrap: "wrap" }}>
+      {[
+        { emoji: "💡", label: "가설", arrow: true },
+        { emoji: "⚡", label: "최소 검증", arrow: true },
+        { emoji: "📊", label: "PMF 신호?", arrow: true },
+        { emoji: "✅", label: "자동화", sub: "사람 빠짐", arrow: true },
+        { emoji: "🔄", label: "다음 가설", sub: "슬롯 오픈" },
+      ].map((s, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 20 }}>{s.emoji}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{s.label}</div>
+            {s.sub && <div style={{ fontSize: 9, color: C.textDim }}>{s.sub}</div>}
+          </div>
+          {s.arrow && <span style={{ color: C.textMuted, fontSize: 14 }}>→</span>}
+        </div>
+      ))}
+    </div>
+
+    {/* Philosophy */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+      {[
+        { title: "Layer 1: 일을 한다", desc: "코딩, 디자인, 분석 → AI가 점점 대체", color: C.textMuted, opacity: 0.6 },
+        { title: "Layer 2: 일을 설계한다", desc: "뭘 만들지, 어떤 순서로, 누가/AI가 → 사람의 핵심 역할", color: C.accent, opacity: 1 },
+        { title: "Layer 3: 설계하는 시스템을 설계한다", desc: "반복적으로 빠르게 실험할 수 있는 구조 자체 → AI-native 차별점", color: C.pink, opacity: 1 },
+      ].map((l, i) => (
+        <div key={i} style={{ background: l.color + "10", border: `1px solid ${l.color}30`, borderRadius: 10, padding: 16, opacity: l.opacity }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: l.color }}>{l.title}</div>
+          <div style={{ fontSize: 11, color: C.textDim, marginTop: 6, lineHeight: 1.5 }}>{l.desc}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// ═══════════════════════════════════════
+// TAB 2: EXPERIMENT FLOW
+// ═══════════════════════════════════════
+const ExperimentFlow = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ textAlign: "center", marginBottom: 4 }}>
+      <div style={{ fontSize: 11, color: C.accent, letterSpacing: 2, fontWeight: 600 }}>EXPERIMENT LIFECYCLE</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 4 }}>가설 → 검증 → 판단의 닫힌 루프</div>
+      <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>모든 일은 반드시 "끝낼 수 있는 일" 형태로 쪼개진다. 끝나지 않으면 병목이다.</div>
+    </div>
+
+    {/* Experiment Card Template */}
+    <Card title="📋 실험 카드 (표준 포맷)" accent={C.accent}>
+      <div style={{ background: C.bg, borderRadius: 10, padding: 16, border: `1px dashed ${C.accent}40` }}>
+        <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: "8px 12px", fontSize: 11 }}>
+          {[
+            ["가설", '"{타겟}은 {상황}에서 {솔루션}을 원한다"'],
+            ["검증 방법", "뭘 만들어서 / 뭘 측정할 것인지"],
+            ["성공 기준", "숫자 + 기한 (반드시 측정 가능하게)"],
+            ["🤖 AI 실행", "자동으로 돌릴 수 있는 것"],
+            ["🧠 사람 실행", "인간의 판단/행동이 필요한 것"],
+            ["⏳ 시간 필요", "SNS, 관계 구축 등 누적이 필요한 것"],
+            ["상태", "대기 → 진행 → 판단대기 → Go/Kill"],
+            ["판단 로그", "결과 + 왜? (1줄)"],
+          ].map(([label, value], i) => (
+            <React.Fragment key={i}>
+              <div style={{ color: C.accent, fontWeight: 600 }}>{label}</div>
+              <div style={{ color: C.textDim }}>{value}</div>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </Card>
+
+    {/* Main Flow */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
+      {/* Phase 1 */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+        <FlowStep emoji="💡" title="아이디어 투입" sub="누구든 던질 수 있음" accent={C.textDim} />
+        <span style={{ color: C.textMuted }}>→</span>
+        <FlowStep emoji="🧪" title="전략 모드" sub="고도화 + Go/Kill 사전 판단" accent={C.accent} active />
+        <span style={{ color: C.textMuted }}>→</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ background: C.green + "15", border: `1px solid ${C.green}`, borderRadius: 8, padding: "6px 16px", fontSize: 12, fontWeight: 700, color: C.green, textAlign: "center" }}>✅ GO → 실험 카드 생성</div>
+          <div style={{ background: C.red + "15", border: `1px solid ${C.red}`, borderRadius: 8, padding: "6px 16px", fontSize: 12, fontWeight: 700, color: C.red, textAlign: "center" }}>❌ KILL → 판단 로그 1줄</div>
+        </div>
+      </div>
+
+      <Arrow direction="down" label="Go인 경우" />
+
+      {/* Phase 2: Decomposition */}
+      <Card title="🔨 분해 모드 — 실험을 '끝낼 수 있는 일'로 쪼갠다" accent={C.blue} style={{ width: "100%", maxWidth: 750 }}>
+        <div style={{ fontSize: 12, color: C.textDim, marginBottom: 12 }}>단순히 "리서치"가 아니라, 누가 어디서 뭘 하는지까지. 개발도 컴포넌트 단위로.</div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+          <div style={{ background: C.bg, borderRadius: 8, padding: 12 }}>
+            <div style={{ fontSize: 10, color: C.cyan, fontWeight: 600 }}>🤖 AI 실행 예시</div>
+            <div style={{ fontSize: 11, color: C.textDim, marginTop: 4 }}>"경쟁사 A, B, C 구독 가격 크롤링 → 비교 스프레드시트 생성 → 슬랙에 공유"</div>
+          </div>
+          <div style={{ background: C.bg, borderRadius: 8, padding: 12 }}>
+            <div style={{ fontSize: 10, color: C.orange, fontWeight: 600 }}>🧠 사람 실행 예시</div>
+            <div style={{ fontSize: 11, color: C.textDim, marginTop: 4 }}>"타겟 유저 5명 인터뷰. 질문지는 AI가 생성. 장소: OO센터. 결과 기록 후 태스크 완료"</div>
+          </div>
+          <div style={{ background: C.bg, borderRadius: 8, padding: 12 }}>
+            <div style={{ fontSize: 10, color: C.purple, fontWeight: 600 }}>🔄 병렬 실행 예시</div>
+            <div style={{ fontSize: 11, color: C.textDim, marginTop: 4 }}>"AI 프로토타입 초안 → 디자이너 리뷰 → 수정 → 보안 AI 검토 → 개발자 배포"</div>
+          </div>
+        </div>
+      </Card>
+
+      <Arrow direction="down" label="태스크 배정 → 데일리 브리핑" />
+
+      {/* Phase 3 */}
+      <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 750, flexWrap: "wrap" }}>
+        <Card title="⚡ 실행" accent={C.green} style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            • 2시간 인지 블록 단위<br />
+            • 운영 모드가 매일 브리핑<br />
+            • 블로커 발생 시 즉시 감지<br />
+            • 완료 = 완료조건 충족
+          </div>
+        </Card>
+        <Card title="📊 데이터 수집" accent={C.cyan} style={{ flex: 1, minWidth: 200 }}>
+          <div style={{ fontSize: 11, color: C.textDim, lineHeight: 1.6 }}>
+            • 메트릭 자동 수집<br />
+            • 유저 피드백 정리<br />
+            • A/B 테스트 결과<br />
+            • 정성적 관찰 기록
+          </div>
+        </Card>
+      </div>
+
+      <Arrow direction="down" label="기한 도래" />
+
+      {/* Phase 4 */}
+      <div style={{ background: C.purple + "10", border: `2px solid ${C.purple}`, borderRadius: 12, padding: 16, width: "100%", maxWidth: 750, textAlign: "center" }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.purple }}>🎯 판단 (Level 2: PM + CEO)</div>
+        <div style={{ fontSize: 12, color: C.textDim, marginTop: 8 }}>성공기준 달성? → 끝내지 못했다면, 그 자체가 병목. 기록하고 해결한다.</div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 16, marginTop: 12, flexWrap: "wrap" }}>
+          <Badge color={C.green}>Go → 확장 or 자동화</Badge>
+          <Badge color={C.orange}>Pivot → 카드 수정 후 재실행</Badge>
+          <Badge color={C.red}>Kill → 판단 메모리에 기록</Badge>
+        </div>
+      </div>
+
+      <Arrow direction="down" />
+
+      <div style={{ background: C.accent + "10", border: `1px solid ${C.accent}`, borderRadius: 12, padding: 12, textAlign: "center", fontSize: 12, color: C.accent, fontWeight: 600, width: "100%", maxWidth: 750 }}>
+        🔄 판단 로그 → 판단 메모리 DB → 다음 가설에 AI가 자동 주입 → 학습 루프
+      </div>
+    </div>
+  </div>
+);
+
+// ═══════════════════════════════════════
+// TAB 3: DAILY OPS
+// ═══════════════════════════════════════
+const DailyOps = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ textAlign: "center", marginBottom: 4 }}>
+      <div style={{ fontSize: 11, color: C.cyan, letterSpacing: 2, fontWeight: 600 }}>DAILY OPERATIONS</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 4 }}>일이 사람에게 온다. 사람이 일을 찾지 않는다.</div>
+      <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>인간의 시간과 인지가 제일 귀하다. 파악하는 시간을 0에 가깝게.</div>
+    </div>
+
+    {/* Decision Hierarchy */}
+    <Card title="판단 계층 — 80%는 Level 0~1에서 자동 처리" accent={C.accent}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 8 }}>
+        {[
+          { level: "L0", who: "🤖 AI 자동", tasks: "데일리 배정, 데이터 수집, 콘텐츠 초안, 상태 업데이트", color: C.cyan, pct: "40%" },
+          { level: "L1", who: "👤 담당자", tasks: "일일 실행 결정, 기술 트레이드오프, 자기 실험 내 판단", color: C.green, pct: "40%" },
+          { level: "L2", who: "🎯 PM + CEO", tasks: "Go/Kill 판단, 새 실험 설계, 자원 재배치", color: C.orange, pct: "15%" },
+          { level: "L3", who: "👑 CEO", tasks: "프로덕트 레벨 방향, 가설 추가/삭제", color: C.red, pct: "5%" },
+        ].map((l, i) => (
+          <div key={i} style={{ background: l.color + "08", border: `1px solid ${l.color}30`, borderRadius: 8, padding: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: l.color }}>{l.level}</span>
+              <span style={{ fontSize: 10, color: l.color }}>{l.pct}</span>
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.text, marginTop: 4 }}>{l.who}</div>
+            <div style={{ fontSize: 10, color: C.textDim, marginTop: 4, lineHeight: 1.5 }}>{l.tasks}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    {/* Daily Timeline */}
+    <Card title="하루의 흐름 — 컨베이어 벨트" accent={C.cyan}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {[
+          { time: "09:00", title: "아침 브리핑 (자동 생성)", desc: "운영 모드가 실험 상태 + 오늘 할 일 + 블로커를 사람별로 정리해서 전달. '오늘 뭐하지?'가 사라진다.", agent: "Ops Agent", color: C.cyan },
+          { time: "09:30", title: "인지 블록 #1 (2시간)", desc: "각자 배정된 태스크 실행. AI 태스크는 병렬로 동시 가동. 사람은 🧠 태스크에 집중.", agent: "자동 병렬", color: C.green },
+          { time: "11:30", title: "2시간 체크", desc: "뭐 했는지 → 상태 업데이트 → 다음 블록 재조정. 미완료 사유 기록.", agent: "Ops Agent", color: C.cyan },
+          { time: "13:00", title: "인지 블록 #2, #3", desc: "블로커 발생 시 운영 모드가 감지하고 대안 제시 or 리라우팅.", agent: "자동 감지", color: C.green },
+          { time: "17:30", title: "오늘 정리", desc: "완료/미완료 정리 → 내일 이어갈 것 세팅 → 끝내지 못한 것은 병목으로 기록.", agent: "Ops Agent", color: C.cyan },
+          { time: "야간", title: "AI 자동 실행", desc: "리서치, 콘텐츠 초안, 버그 픽스 등 리뷰 부담 적은 태스크. 아침에 결과 서머리.", agent: "자동 실행", color: C.purple },
+        ].map((item, i) => (
+          <div key={i} style={{ display: "flex", gap: 12, padding: "10px 0", borderBottom: i < 5 ? `1px solid ${C.border}` : "none", flexWrap: "wrap" }}>
+            <div style={{ minWidth: 70, fontSize: 11, fontWeight: 700, color: item.color, paddingTop: 2 }}>{item.time}</div>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{item.title}</div>
+              <div style={{ fontSize: 11, color: C.textDim, marginTop: 2 }}>{item.desc}</div>
+            </div>
+            <Badge color={item.color}>{item.agent}</Badge>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    {/* Weekly */}
+    <Card title="주간 루프 (매주 1회) — 수렴과 얼라인" accent={C.orange}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 8 }}>
+        {[
+          { n: "1", title: "실험 결과", desc: "이번 주 메트릭 리뷰" },
+          { n: "2", title: "Kill/Continue", desc: "Go/Kill 판단 + 로그" },
+          { n: "3", title: "다음 주 설계", desc: "실험 슬롯 배정" },
+          { n: "4", title: "아이디어 수렴", desc: "팀 제안 → 공통 포맷으로" },
+          { n: "5", title: "시스템 개선 1개", desc: "딱 1개만. 이번 주 안에." },
+        ].map((s, i) => (
+          <div key={i} style={{ background: C.bg, borderRadius: 8, padding: 12, textAlign: "center" }}>
+            <div style={{ width: 24, height: 24, borderRadius: 12, background: C.orange + "20", color: C.orange, fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 6px" }}>{s.n}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{s.title}</div>
+            <div style={{ fontSize: 10, color: C.textDim, marginTop: 2 }}>{s.desc}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    {/* 3 Rules */}
+    <Card title="운영 규칙 3개 — 이것만 지키면 된다" accent={C.text}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {[
+          { rule: "이니셔티브 없는 태스크 금지", why: '"왜 이걸 하지?" 질문의 90%가 사라진다.' },
+          { rule: "슬랙에서 나온 할일은 5분 안에 보드에", why: "안 넣으면 없는 것. 휘발되면 학습도 없다." },
+          { rule: "주 1회 완료 태스크 정리", why: "보드가 쓰레기장이 되면 아무도 안 본다." },
+        ].map((r, i) => (
+          <div key={i} style={{ display: "flex", gap: 12, padding: "8px 12px", background: C.bg, borderRadius: 8 }}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: C.accent, minWidth: 24 }}>{i + 1}</span>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{r.rule}</div>
+              <div style={{ fontSize: 11, color: C.textDim, marginTop: 2 }}>{r.why}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  </div>
+);
+
+// ═══════════════════════════════════════
+// TAB 4: AGENT ARCHITECTURE
+// ═══════════════════════════════════════
+const AgentArch = () => (
+  <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div style={{ textAlign: "center", marginBottom: 4 }}>
+      <div style={{ fontSize: 11, color: C.purple, letterSpacing: 2, fontWeight: 600 }}>AGENT ARCHITECTURE</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 4 }}>5 모드, 1 시스템, 공유 컨텍스트</div>
+      <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>물리적 에이전트 11개가 아닌, 모드 전환 — 같은 LLM, 다른 프롬프트 + 컨텍스트</div>
+    </div>
+
+    {/* Shared Context */}
+    <div style={{ background: C.accent + "08", border: `1px solid ${C.accent}30`, borderRadius: 12, padding: 16, textAlign: "center" }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.accent }}>📡 공유 컨텍스트 레이어</div>
+      <div style={{ fontSize: 11, color: C.textDim, marginTop: 4 }}>Notion DB (실험 보드 + 태스크 보드 + 판단 메모리) → 모든 모드가 읽고 쓰는 단일 소스 of truth</div>
+      <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 10, flexWrap: "wrap" }}>
+        <Badge color={C.blue}>실험 DB</Badge>
+        <Badge color={C.green}>태스크 DB</Badge>
+        <Badge color={C.purple}>판단 메모리</Badge>
+        <Badge color={C.orange}>팀 컨텍스트</Badge>
+      </div>
+    </div>
+
+    {/* 5 Modes */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
+      {[
+        { mode: "Mode 1", name: "전략 모드", emoji: "🎯", color: C.orange, trigger: '"이거 해볼까?", 새 아이디어, "이 실험 어때?"', reads: "판단 메모리 DB → 이전 실험 패턴 참조", writes: "실험 보드 (새 카드 or Kill 로그)", does: "아이디어 고도화, 이전 실험과 비교, Go/Kill 사전 판단, 성공기준 제안. 아이디어 자체를 날카롭게 만든다.", auto: false },
+        { mode: "Mode 2", name: "분해 모드", emoji: "🔨", color: C.blue, trigger: "실험 카드가 Go 되는 순간 (자동 트리거)", reads: "실험 보드 + 팀 역할/스킬", writes: "태스크 보드 (구체적 태스크 자동 생성)", does: "실험 → 구체 태스크 분해, 실행자 배정(🧠/🤖/🔄), 디펜던시 매핑, 기한 설정. '강남구 OO센터 방문' 수준까지.", auto: true },
+        { mode: "Mode 3", name: "운영 모드", emoji: "📋", color: C.cyan, trigger: '매일 아침 자동 + "오늘 뭐하지?"', reads: "태스크 보드 + 팀 컨텍스트 + 어제 로그", writes: "태스크 상태 업데이트 + 브리핑", does: "데일리 브리핑 생성, 업무 분장, 블로커 감지, 상태 트래킹. 사람이 일을 찾지 않게 만든다.", auto: true },
+        { mode: "Mode 4", name: "지식 모드", emoji: "📚", color: C.green, trigger: '"이거 글감이다", "이전에 비슷한 거?", 콘텐츠 요청', reads: "판단 메모리 + 외부 데이터 + 노하우", writes: "콘텐츠, 리서치 결과, 노하우 업데이트", does: "콘텐츠 변환(매체별 톤/포맷), 노하우 추출 및 주입, 리서치 파이프라인. 암묵지를 형식지로.", auto: false },
+      ].map((a, i) => (
+        <div key={i} style={{ background: a.color + "08", border: `1px solid ${a.color}30`, borderRadius: 12, padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 18 }}>{a.emoji}</span>
+              <div>
+                <div style={{ fontSize: 10, color: a.color, fontWeight: 600 }}>{a.mode}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{a.name}</div>
+              </div>
+            </div>
+            {a.auto && <Badge color={a.color}>자동 트리거</Badge>}
+          </div>
+          <div style={{ marginTop: 10, fontSize: 10, color: C.textDim, lineHeight: 1.7 }}>
+            <div><span style={{ fontWeight: 600 }}>트리거:</span> {a.trigger}</div>
+            <div><span style={{ fontWeight: 600 }}>읽기:</span> {a.reads}</div>
+            <div><span style={{ fontWeight: 600 }}>쓰기:</span> {a.writes}</div>
+            <div style={{ marginTop: 6, color: C.text, fontSize: 11 }}>{a.does}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Meta Agent */}
+    <div style={{ background: C.pink + "08", border: `2px solid ${C.pink}40`, borderRadius: 12, padding: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 18 }}>🔄</span>
+        <div>
+          <div style={{ fontSize: 10, color: C.pink, fontWeight: 600 }}>Mode 5 — 재귀적 개선</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>메타 모드</div>
+        </div>
+        <Badge color={C.pink}>주 1회 자동</Badge>
+      </div>
+      <div style={{ fontSize: 11, color: C.textDim, marginBottom: 10 }}>시스템이 자기 자신을 보는 눈. 불완전해도 개선할 수 있는 Room이 여기에 있다.</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+        <div style={{ background: C.bg, borderRadius: 8, padding: 10 }}>
+          <div style={{ fontSize: 10, color: C.pink, fontWeight: 600 }}>진단</div>
+          <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>실험 속도, 태스크 완료율, 블로커 패턴, 판단 일관성 체크</div>
+        </div>
+        <div style={{ background: C.bg, borderRadius: 8, padding: 10 }}>
+          <div style={{ fontSize: 10, color: C.pink, fontWeight: 600 }}>제안</div>
+          <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>"분해 품질 낮음 → 완료조건을 더 구체적으로" 등 개선 포인트 1개</div>
+        </div>
+        <div style={{ background: C.bg, borderRadius: 8, padding: 10 }}>
+          <div style={{ fontSize: 10, color: C.pink, fontWeight: 600 }}>추적</div>
+          <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>지난주 제안 반영 여부 확인. 안 됐으면 왜 안 됐는지 기록</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Context Flow */}
+    <Card title="컨텍스트 흐름 — DB를 통한 비동기 소통 (채팅이 아니다)" accent={C.textDim}>
+      <div style={{ fontSize: 11, color: C.textDim, lineHeight: 2 }}>
+        <div>① 전략 모드가 실험 카드를 <span style={{ color: C.orange }}>실험 DB</span>에 생성</div>
+        <div>② 분해 모드가 실험 DB 읽기 → <span style={{ color: C.blue }}>태스크 DB</span>에 구체 태스크 생성</div>
+        <div>③ 운영 모드가 태스크 DB 읽기 → 사람에게 <span style={{ color: C.cyan }}>데일리 브리핑</span> 전달</div>
+        <div>④ 실험 종료 시 판단 로그가 <span style={{ color: C.purple }}>판단 메모리</span>에 축적</div>
+        <div>⑤ 메타 모드가 전체 DB 읽기 → <span style={{ color: C.pink }}>시스템 개선 제안</span></div>
+        <div>⑥ 다음 사이클에서 ①이 판단 메모리 참조 → <span style={{ color: C.accent, fontWeight: 600 }}>학습 루프 완성</span></div>
+      </div>
+    </Card>
+  </div>
+);
+
+// ═══════════════════════════════════════
+// TAB 5: DB DESIGN
+// ═══════════════════════════════════════
+const DBDesign = () => {
+  const TableView = ({ title, color, badge, fields }) => (
+    <div style={{ border: `2px solid ${color}`, borderRadius: 12, padding: 16, background: color + "05" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <div style={{ background: color, color: "#fff", padding: "2px 10px", borderRadius: 4, fontSize: 11, fontWeight: 700 }}>{title}</div>
+        <Badge color={color}>{badge}</Badge>
+      </div>
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ fontSize: 11 }}>
+          <thead>
+            <tr style={{ borderBottom: `1px solid ${C.border}` }}>
+              {["필드명", "타입", "설명", "예시"].map(h => (
+                <th key={h} style={{ textAlign: "left", padding: "6px 8px", color: C.textDim, fontWeight: 600, fontSize: 10 }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {fields.map((row, i) => (
+              <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+                {row.map((cell, j) => (
+                  <td key={j} style={{ padding: "6px 8px", color: j === 0 ? C.text : C.textDim, whiteSpace: j < 2 ? "nowrap" : "normal" }}>{cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ textAlign: "center", marginBottom: 4 }}>
+        <div style={{ fontSize: 11, color: C.green, letterSpacing: 2, fontWeight: 600 }}>DATABASE ARCHITECTURE</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 4 }}>3개의 DB, 1개의 진실</div>
+        <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>Notion DB + Relations. 심플하게 시작. 데이터 1000개 넘으면 벡터 DB 검토.</div>
+      </div>
+
+      <TableView title="DB 1: 실험 보드" color={C.blue} badge="전략의 소스" fields={[
+        ["실험명", "Title", "실험의 이름", "결제 전환율 최적화"],
+        ["가설", "Text", '"{타겟}은 {상황}에서 {솔루션}을 원한다"', "유저는 결제 직전 가격이 아닌 UX에서 이탈한다"],
+        ["프로덕트", "Select", "어떤 프로덕트의 실험인지", "Product A / B / ..."],
+        ["성공기준", "Text", "숫자 + 측정 방법", "전환율 1% → 3% (2주 내)"],
+        ["상태", "Select", "현재 단계", "대기 / 진행 / 판단대기 / Go / Kill"],
+        ["실행자유형", "Multi-Select", "🧠/🤖/🔄", "🔄 병렬"],
+        ["기한", "Date", "판단 기한", "2025-03-15"],
+        ["담당자", "Person", "책임자", "@PM"],
+        ["판단로그", "Text", "Go/Kill 사유 1줄", "UX 문제. 결제 직전 이탈률 40%"],
+        ["카테고리", "Select", "Kill 사유 분류", "UX / 가격 / 타겟 / 기술 / 시장"],
+      ]} />
+
+      <TableView title="DB 2: 태스크 보드" color={C.green} badge="실행의 소스" fields={[
+        ["태스크명", "Title", "구체적, 끝낼 수 있는 단위", "결제 웹훅 엔드포인트 구현"],
+        ["실험", "Relation → DB1", "어떤 실험의 태스크인지", "→ 결제 전환율 최적화"],
+        ["담당자", "Person", "누가 하는지", "@개발자A"],
+        ["실행자", "Select", "🧠사람 / 🤖AI / 🔄병렬", "🤖AI"],
+        ["상태", "Select", "진행 상태", "대기 / 진행 / 리뷰 / 완료 / 블로커"],
+        ["완료조건", "Text", "이게 되면 끝", "웹훅 수신 → DB 반영 확인"],
+        ["블로커", "Text", "막힌 것", "디자인 시안 대기 중"],
+        ["기한", "Date", "언제까지", "2025-03-10"],
+        ["인지블록", "Number", "예상 소요 (2시간 단위)", "2"],
+      ]} />
+
+      <TableView title="DB 3: 판단 메모리" color={C.purple} badge="학습의 소스" fields={[
+        ["날짜", "Date", "판단 시점", "2025-03-15"],
+        ["실험명", "Relation → DB1", "어떤 실험의 판단인지", "→ 결제 전환율 최적화"],
+        ["판단", "Select", "결과", "Go / Kill / Pivot"],
+        ["사유", "Text", "왜? 1줄", "가격이 아닌 UX 문제. 결제 직전 이탈"],
+        ["프로덕트", "Select", "어떤 프로덕트", "Product A"],
+        ["카테고리", "Multi-Select", "사유 분류", "UX, 전환율"],
+        ["다음 액션", "Text", "이 판단으로 인한 후속", "UX 개선 실험 카드 생성"],
+        ["학습점", "Text", "노하우가 될 만한 것", "결제 플로우는 3단계 이하여야 함"],
+      ]} />
+
+      {/* Relations */}
+      <Card title="DB 간 관계" accent={C.textDim}>
+        <div style={{ textAlign: "center", padding: "12px 0", fontSize: 13, color: C.textDim, lineHeight: 2.2 }}>
+          <span style={{ color: C.blue, fontWeight: 700 }}>실험 보드</span> ←― 1:N ―→ <span style={{ color: C.green, fontWeight: 700 }}>태스크 보드</span><br />
+          <span style={{ color: C.blue, fontWeight: 700 }}>실험 보드</span> ←― 1:N ―→ <span style={{ color: C.purple, fontWeight: 700 }}>판단 메모리</span><br />
+          <span style={{ fontSize: 11, color: C.textMuted }}>하나의 실험에 여러 태스크, 여러 판단 이력이 연결됨. 이 관계를 통해 AI가 패턴을 읽는다.</span>
+        </div>
+      </Card>
+
+      {/* Who reads what */}
+      <Card title="누가 어떤 DB를 읽는가" accent={C.accent}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
+          {[
+            { mode: "🎯 전략 모드", reads: "판단 메모리 (패턴 분석)", writes: "실험 보드 (카드 생성)", color: C.orange },
+            { mode: "🔨 분해 모드", reads: "실험 보드 (Go된 카드)", writes: "태스크 보드 (태스크 생성)", color: C.blue },
+            { mode: "📋 운영 모드", reads: "태스크 보드 (오늘 할 일)", writes: "태스크 상태 (업데이트)", color: C.cyan },
+            { mode: "📚 지식 모드", reads: "판단 메모리 + 외부", writes: "콘텐츠 + 노하우", color: C.green },
+            { mode: "🔄 메타 모드", reads: "전체 DB", writes: "시스템 개선 제안", color: C.pink },
+          ].map((m, i) => (
+            <div key={i} style={{ background: C.bg, borderRadius: 8, padding: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: m.color }}>{m.mode}</div>
+              <div style={{ fontSize: 10, color: C.textDim, marginTop: 4 }}>읽기: {m.reads}</div>
+              <div style={{ fontSize: 10, color: C.textDim }}>쓰기: {m.writes}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+// ═══════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════
+function App() {
+  const [activeTab, setActiveTab] = useState("bigpicture");
+
+  const renderTab = () => {
+    switch (activeTab) {
+      case "bigpicture": return <BigPicture />;
+      case "experiment": return <ExperimentFlow />;
+      case "daily": return <DailyOps />;
+      case "agents": return <AgentArch />;
+      case "db": return <DBDesign />;
+      default: return <BigPicture />;
+    }
+  };
+
+  return (
+    <div style={{ background: C.bg, color: C.text, minHeight: "100vh", fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif', padding: "24px 16px", maxWidth: 900, margin: "0 auto" }}>
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div style={{ fontSize: 10, color: C.textMuted, letterSpacing: 3 }}>AI-NATIVE OPERATING SYSTEM v0.1</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginTop: 6 }}>AI 시대의 포드식 공법</div>
+        <div style={{ fontSize: 12, color: C.textDim, marginTop: 4 }}>효율화가 아니라 재설계. 일하는 방식 자체가 바뀌어야 한다.</div>
+      </div>
+
+      <div style={{ display: "flex", gap: 4, marginBottom: 24, background: C.card, borderRadius: 10, padding: 4, border: `1px solid ${C.border}`, overflowX: "auto" }}>
+        {tabs.map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{ flex: 1, padding: "10px 8px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, transition: "all 0.2s", background: activeTab === tab.id ? C.accent : "transparent", color: activeTab === tab.id ? "#fff" : C.textDim, whiteSpace: "nowrap", minWidth: "fit-content" }}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {renderTab()}
+
+      <div style={{ textAlign: "center", marginTop: 32, padding: 16, borderTop: `1px solid ${C.border}`, fontSize: 10, color: C.textMuted }}>
+        불완전해도 좋다. 스스로 개선할 수 있는 시스템이면 된다. — Start from Week 1.
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+</body>
+</html>
